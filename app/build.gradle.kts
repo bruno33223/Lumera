@@ -62,6 +62,18 @@ android {
         }
     }
 
+    signingConfigs {
+        val releaseKeystore = project.file("lumera-release.jks")
+        if (releaseKeystore.exists()) {
+            create("release") {
+                storeFile = releaseKeystore
+                storePassword = "lumerapass"
+                keyAlias = "lumera"
+                keyPassword = "lumerapass"
+            }
+        }
+    }
+
     buildTypes {
         debug {
 
@@ -71,7 +83,12 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("debug")
+            val releaseConfig = signingConfigs.findByName("release")
+            if (releaseConfig != null) {
+                signingConfig = releaseConfig
+            } else {
+                signingConfig = signingConfigs.getByName("debug")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
